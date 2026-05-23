@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales AI Prediction Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="text-2xl font-bold text-green-500">Sales AI</div>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="#" class="text-green-500 font-medium border-b-2 border-green-500 pb-4">Dashboard</a>
+                        <a href="#" class="text-gray-600 hover:text-gray-900">Predictions</a>
+                        <a href="#" class="text-gray-600 hover:text-gray-900">Settings</a>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-600">Status: <span id="status" class="text-green-500 font-medium">●</span></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Sales AI Prediction Dashboard</h1>
+            <p class="text-gray-600">Next day sales forecasting using Machine Learning model</p>
+        </div>
+
+        <!-- Status Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Backend Status -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Backend Status</p>
+                        <p id="backend-status" class="text-2xl font-bold text-green-600 mt-2">Connected</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <span class="text-green-600 text-xl">✓</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Last Prediction -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Next Day Sales Forecast</p>
+                        <p id="last-prediction" class="text-2xl font-bold text-blue-600 mt-2">Pending</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span class="text-blue-600 text-xl">📊</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Predictions -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Total Predictions</p>
+                        <p id="total-predictions" class="text-2xl font-bold text-purple-600 mt-2">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                        <span class="text-purple-600 text-xl">🔮</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Input Section -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Input Data</h2>
+                    
+                    <div class="space-y-4">
+                        <!-- Data Type Selection -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Input Type</label>
+                            <select id="input-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="random">Random Data (Testing)</option>
+                                <option value="manual">Manual Input</option>
+                                <option value="sequence">Time Series Sequence</option>
+                            </select>
+                        </div>
+
+                        <!-- Manual Input -->
+                        <div id="manual-input" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Enter 100 Values (comma-separated)</label>
+                            <textarea id="data-input" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" rows="6" placeholder="1.5, 2.3, 3.1, ..."></textarea>
+                        </div>
+
+                        <!-- Random Data Options -->
+                        <div id="random-options">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Data Range (Min / Max)</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="number" id="min-value" value="4000" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Min">
+                                <input type="number" id="max-value" value="500000" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Max">
+                            </div>
+                        </div>
+
+                        <!-- Denormalization Settings -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
+                            <label class="block text-sm font-bold text-blue-900 mb-2">Sales Range (Min / Max)</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="number" id="sales-min" value="500" class="px-3 py-2 border border-blue-300 rounded-lg bg-white text-sm" placeholder="Min ($)">
+                                <input type="number" id="sales-max" value="2000000" class="px-3 py-2 border border-blue-300 rounded-lg bg-white text-sm" placeholder="Max ($)">
+                            </div>
+                        </div>
+
+                        <!-- Predict Button -->
+                        <button id="predict-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+                            🔮 Make Prediction
+                        </button>
+
+                        <!-- Loading State -->
+                        <div id="loading" class="hidden text-center">
+                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+                            <p class="text-sm text-gray-600 mt-2">Processing...</p>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div id="error-message" class="hidden bg-red-50 border border-red-200 rounded-lg p-3">
+                            <p class="text-sm text-red-600"></p>
+                        </div>
+
+                        <!-- Success Message -->
+                        <div id="success-message" class="hidden bg-green-50 border border-green-200 rounded-lg p-3">
+                            <p class="text-sm text-green-600">✓ Prediction successful!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Response Details -->
+                <div class="bg-white rounded-lg shadow p-6 mt-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Response Details</h3>
+                    <div id="response-details" class="space-y-2 text-sm">
+                        <p class="text-gray-600">No prediction yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="lg:col-span-2">
+                <!-- Prediction Output Chart -->
+                <div class="bg-white rounded-lg shadow p-6 mb-8">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Sales Forecast Trend</h2>
+                    <p class="text-sm text-gray-600 mb-4">Next day sales predictions over time</p>
+                    <div class="h-80">
+                        <canvas id="prediction-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Input Data Visualization -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Historical Sales Data</h2>
+                    <p class="text-sm text-gray-600 mb-4">Last 100 days of sales values (input to model)</p>
+                    <div class="h-80">
+                        <canvas id="input-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-gray-600 text-sm">Avg Sales Forecast</p>
+                <p class="text-2xl font-bold text-blue-600 mt-2" id="avg-pred">-</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-gray-600 text-sm">Min Forecast</p>
+                <p class="text-2xl font-bold text-orange-600 mt-2" id="min-pred">-</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-gray-600 text-sm">Max Forecast</p>
+                <p class="text-2xl font-bold text-green-600 mt-2" id="max-pred">-</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-gray-600 text-sm">Model Response Time</p>
+                <p class="text-2xl font-bold text-purple-600 mt-2" id="response-time">-</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
